@@ -1,0 +1,12 @@
+﻿@{
+    ViewBag.Title = "UploadPassport";
+}
+
+<h2>Charger le document a caviarder:</h2>
+
+@using (Html.BeginForm("ProcessPassport", "Caviardage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <input type="file" name="passportImage" />
+    <input type="submit" value="Process" />
+}
+
