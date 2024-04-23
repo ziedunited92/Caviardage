@@ -1,10 +1,5 @@
-﻿using Aspose.Words;
-using Aspose.Words.Saving;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic;
-using System.Reflection.Metadata;
-using System.Web.WebPages;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 using Tesseract;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
@@ -49,16 +44,9 @@ namespace Caviardage.Controllers
                                     texteComplet = texteComplet.Replace("Evaluation Only. Created with Aspose.Words. Copyright 2003-2024 Aspose Pty Ltd.", "");
                                     texteComplet = texteComplet.Replace("Created with an evaluation copy of Aspose.Words. To discover the full versions of our APIs\r\nplease ttps://products.aspose.com/words/", "");
 
-                                    // Trouver l'index du champ "Numéro de carte de crédit"
-                                    int indexDebutCarteCredit = texteComplet.IndexOf("Credit card Number", StringComparison.OrdinalIgnoreCase);
+                                    // Remplacer les informations sensibles par des étoiles
+                                    string texteAffiche = RedigerPII(texteComplet);
 
-                                    // Caviarder les 16 chiffres après le champ
-                                    const int longueurCarteCredit = 16;
-                                    string texteCaviarde = texteComplet.Substring(indexDebutCarteCredit + 24, longueurCarteCredit);
-                                    texteCaviarde = texteCaviarde.Replace("Cr", "");
-                                    // Remplacer les chiffres par des étoiles
-                                    string texteCaviardeRedacte = new string('*', longueurCarteCredit);
-                                  string  texteAffiche = texteComplet.Replace(texteCaviarde, texteCaviardeRedacte);
                                     ViewBag.MyString = texteAffiche;
 
                                     iTextSharp.text.Document documentPdf = new iTextSharp.text.Document(PageSize.A4);
@@ -95,6 +83,13 @@ namespace Caviardage.Controllers
            
 
             return View("AffichageResultat");
+        }
+        static string RedigerPII(string texte)
+        {
+            // Remplacer les informations sensibles par des étoiles
+            string texteRedige = Regex.Replace(texte, @"\b(?:\d{3}-\d{3}-\d{3}|\d{4}-\d{4}-\d{4}-\d{4}|[A-Z][a-z]+)\b", "***");
+
+            return texteRedige;
         }
 
     }
