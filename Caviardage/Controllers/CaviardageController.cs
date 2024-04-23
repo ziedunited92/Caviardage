@@ -6,6 +6,8 @@ using Microsoft.VisualBasic;
 using System.Reflection.Metadata;
 using System.Web.WebPages;
 using Tesseract;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 
 namespace Caviardage.Controllers
 {
@@ -19,7 +21,7 @@ namespace Caviardage.Controllers
         [HttpPost]
         public IActionResult ProcessPassport(IFormFile passportImage)
         {
-            string outputPath = @"C:\Users\User\Documents\ziedCaviarde.doc"; // Remplacez par le chemin de sortie souhaité
+            string outputPath = @"C:\Users\User\Documents\ziedCaviarde.pdf"; // Remplacez par le chemin de sortie souhaité
             if (passportImage != null && passportImage.Length > 0)
             {
                 try
@@ -58,15 +60,24 @@ namespace Caviardage.Controllers
                                     string texteCaviardeRedacte = new string('*', longueurCarteCredit);
                                   string  texteAffiche = texteComplet.Replace(texteCaviarde, texteCaviardeRedacte);
                                     ViewBag.MyString = texteAffiche;
-                                    // Créez un document Word vide
-                                    Aspose.Words.Document documentWord = new Aspose.Words.Document();
-                         documentWord.Cleanup();
 
-                                   string content= documentWord.GetText();
-                                    documentWord= (Aspose.Words.Document)content.Concat(texteAffiche);
+                                    iTextSharp.text.Document documentPdf = new iTextSharp.text.Document(PageSize.A4);
 
-                                    // Enregistrez le document Word généré
-                                    documentWord.Save(@"C:\Users\User\Documents\ziedCaviarde.doc");
+                                    // Création du fichier de sortie
+                                    PdfWriter.GetInstance(documentPdf, new FileStream(outputPath, FileMode.Create));
+
+                                    // Ouverture du document
+                                    documentPdf.Open();
+
+
+                                    // Ajout du texte au document
+                                    documentPdf.Add(new iTextSharp.text.Paragraph(texteAffiche));
+                                    // Fermeture du document
+                                    documentPdf.Close();
+
+
+
+                                  
                                 }
                             }
                         }
